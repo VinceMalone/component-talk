@@ -1,0 +1,598 @@
+import { prism, swiss } from '@mdx-deck/themes';
+import { Notes } from 'mdx-deck';
+import { theme } from './theme';
+
+export const themes = [swiss, theme, prism];
+
+import { ActionBox } from './ActionBox';
+import { Banner } from './Banner';
+import { Checkbox } from './Checkbox';
+import { Collection } from './Collection';
+import { NumberInput, TextInput } from './Input';
+import { Small } from './Small';
+
+# Achieving Component Extensibility
+
+> Vince Malone<br />
+> Frontend Engineer @ Namely
+
+<Notes>
+<Small size="16px">
+
+**Intro:** name, title, role (I work on...)
+
+**Goal:** share valuable conventions, patterns, and standardizations that we've found valuable and successful at Namely.
+
+</Small>
+</Notes>
+
+<!-- <iframe
+  src="http://designsystem.namely.land/?path=/story/components-input--input"
+  style={{
+    border: 'none',
+    height: '500px',
+    width: '100%',
+  }}
+/> -->
+
+---
+
+#### Button
+
+<Collection>
+  <ActionBox appearance="primary">Primary</ActionBox>
+  <ActionBox appearance="secondary">Secondary</ActionBox>
+  <ActionBox appearance="tertiary">Tertiary</ActionBox>
+</Collection>
+
+#### Banner
+
+<Collection>
+  <Banner type="error">Error</Banner>
+  <Banner type="info">Info</Banner>
+  <Banner type="success">Success</Banner>
+</Collection>
+
+#### Input
+
+<Collection>
+  <TextInput defaultValue="Text" />
+  <NumberInput defaultValue="123.00" />
+</Collection>
+
+---
+
+# Visual
+
+A purely visual alteration of a component
+
+- `appearance`
+- `size`
+
+<!-- Example props of this are - **`appearance`** and **`size`** -->
+
+---
+
+# Visual — `appearance`
+
+<Collection>
+  <ActionBox appearance="primary">Primary</ActionBox>
+  <ActionBox appearance="secondary">Secondary</ActionBox>
+  <ActionBox appearance="tertiary">Tertiary</ActionBox>
+</Collection>
+
+```tsx
+<Button appearance="primary" />
+<Button appearance="secondary" />
+<Button appearance="tertiary" />
+```
+
+---
+
+# Visual — `size`
+
+<Notes>
+<Small size="16px">
+
+Call out boolean prop anti-pattern (and maybe why it **is** ok that something like `disabled` can be a boolean prop)
+
+</Small>
+</Notes>
+
+<Collection>
+  <ActionBox size="normal">Normal</ActionBox>
+  <ActionBox size="compact">Compact</ActionBox>
+</Collection>
+
+```tsx
+<Button size="normal" />
+<Button size="compact" />
+```
+
+---
+
+# Semantic
+
+<Notes>
+<Small size="16px">
+
+- "fulfill a different purpose"
+- same API
+- visual similarities
+- what happens to the user may differ on the `type`
+  - e.g. the priority of notifying the user of the banner contents depending on the type
+
+</Small>
+</Notes>
+
+Convey a distinct meaning to the user
+
+- `type`
+
+<!-- Example prop of this is - **`type`** -->
+
+---
+
+# Semantic — `type`
+
+<Collection>
+  <Banner type="error" headline="Error message" />
+  <Banner type="info" headline="Info message" />
+  <Banner type="success" headline="Success message" />
+</Collection>
+
+```tsx
+<Banner type="error" headline="Error message" />
+<Banner type="info" headline="Info message" />
+<Banner type="success" headline="Success message" />
+```
+
+---
+
+# Functional
+
+<Notes>
+<Small size="16px">
+
+- separate props help avoid conditional props and prop-space bloat
+
+</Small>
+</Notes>
+
+A separate component with a potentially different API
+
+```tsx
+// good
+<InputText />
+<InputNumber precision={2} />
+
+// bad
+<Input type="text" />
+<Input type="number" precision={2} />
+```
+
+---
+
+## Functional — example
+
+<Notes>
+<Small size="16px">
+
+</Small>
+</Notes>
+
+```tsx
+<Select onChange={handleChange} value={value} />
+
+<FilterableSelect
+  query={query}
+  onQueryChange={handle}
+  onChange={handleChange}
+  value={value}
+/>
+```
+
+---
+
+### Component Variant Recap
+
+##### Visual
+
+<Collection>
+  <ActionBox appearance="primary">Primary</ActionBox>
+  <ActionBox appearance="secondary">Secondary</ActionBox>
+  <ActionBox appearance="tertiary">Tertiary</ActionBox>
+</Collection>
+
+##### Semantic
+
+<Collection>
+  <Banner type="error">Error</Banner>
+  <Banner type="info">Info</Banner>
+  <Banner type="success">Success</Banner>
+</Collection>
+
+##### Functional
+
+<Collection>
+  <TextInput defaultValue="Text" />
+  <NumberInput defaultValue="123.00" />
+</Collection>
+
+---
+
+# Polymorphic Components
+
+<Notes>
+<Small size="16px">
+
+## What problem does this solve?
+
+_What's the alternative that we're trying to avoid?_
+
+- Superfluous dom nodes
+- This can matter whe combining semantic elements and css layout techniques (following slide)
+
+> Q: Why not just use global utility css classes?<br />
+> A: Because that's shit
+
+## Setup:
+
+1. Imagine you have some utility components—`Flex` and `Typography`
+2. And some UI requirements:
+   - Style a semantic `h1` as our defined `headline` style
+   - Layout some semantic list elements horizontally
+3. TODO
+
+</Small>
+</Notes>
+
+<Small size="66%">
+
+```ts
+import { Flex, Typography } from 'components';
+```
+
+```tsx
+<Typography appearance="headline">
+  <h1>Heading Text</h1>
+</Typography>
+```
+
+```tsx
+<ul>
+  <Flex direction="row">
+    <li>...</li>
+    <li>...</li>
+  </Flex>
+</ul>
+```
+
+</Small>
+
+---
+
+<Small size="66%">
+
+<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridGap: '0 1em' }}>
+
+# Markup
+
+# Output
+
+```tsx
+<Typography appearance="headline">
+  <h1>Heading Text</h1>
+</Typography>
+```
+
+```html
+<!-- this is superfluous -->
+<div class="typography-headline">
+  <h1>Heading Text</h1>
+</div>
+```
+
+```tsx
+<ul>
+  <Flex direction="row">
+    <li>...</li>
+    <li>...</li>
+  </Flex>
+</ul>
+```
+
+```html
+<ul>
+  <!-- this is invalid HTML -->
+  <div class="flex-row">
+    <li>...</li>
+    <li>...</li>
+  </div>
+</ul>
+```
+
+</div>
+
+</Small>
+
+---
+
+### Ideal Output
+
+```html
+<h1 class="typography-headline">
+  Heading Text
+</h1>
+```
+
+```html
+<ul class="flex-row">
+  <li>...</li>
+  <li>...</li>
+</ul>
+```
+
+---
+
+### `as` | `component`
+
+<Notes>
+<Small size="16px">
+
+- You see this approach used in `styled-components` and `react-router`
+- This works because `h1` and `ul` _know_ how to handle provided props (such as `className`)
+
+</Small>
+</Notes>
+
+```tsx
+<Typography as="h1" appearance="headline">
+  Heading Text
+</Typography>
+```
+
+```tsx
+<Flex as="ul" direction="row">
+  <li>...</li>
+  <li>...</li>
+</Flex>
+```
+
+---
+
+### `as` | `component` — Implementation
+
+<Notes>
+<Small size="16px">
+
+- `...props` is important here so that the composed component's props are passed
+  - e.g. passing `id` to `h1` so some `aria-` can reference it later
+- The composed component _needs_ to accept the provided props
+
+</Small>
+</Notes>
+
+<Small>
+
+<!-- prettier-ignore -->
+```tsx
+const Typography = ({
+  as: Component,
+  appearance,
+  className,
+  ...props
+}) => (
+  <Component
+    {...props}
+    className={`${styles[appearance]} ${className}`}
+  />
+);
+```
+
+</Small>
+
+---
+
+### `children`
+
+<Notes>
+<Small size="16px">
+
+- This is an alternative API that might be worth considering
+- Note how the API looks almost identical to the initial example
+
+</Small>
+</Notes>
+
+<Small>
+
+```tsx
+<Typography appearance="headline">
+  <h1>Heading Text</h1>
+</Typography>
+```
+
+```tsx
+<Flex direction="row">
+  <ul>
+    <li>...</li>
+    <li>...</li>
+  </ul>
+</Flex>
+```
+
+</Small>
+
+---
+
+### `children` — Implementation
+
+<Notes>
+<Small size="16px">
+
+- Maybe mention context on the TODO comment
+
+</Small>
+</Notes>
+
+```tsx
+const Typography = ({ appearance, children }) =>
+  // TODO: handle arrays and Fragments
+  React.cloneElement(children, {
+    className: styles[appearance],
+  });
+```
+
+---
+
+# Compound Components
+
+Imagine a _confirmation modal_ component that will be used to allow the user to save changes before leaving a flow.
+
+<!-- and let's assume the implementation of `ConfirmModal` can't be decomposed any further -->
+
+<!-- achieve composition with compound components, rather than superfluous props (e.g. `labelIsBeforeCheckbox`) -->
+
+<!-- prettier-ignore -->
+```tsx
+<ConfirmModal
+  title="Save before closing?"
+  onCancel={handleCancel}
+  onConfirm={handleConfirm}
+/>
+```
+
+---
+
+What if you need to customize the button labels?
+
+> Easy! I'll just add props for that—`cancelLabel` and `confirmLabel`.
+
+```tsx
+<ConfirmModal
+  title="Save before closing?"
+  cancelLabel="No"
+  onCancel={handleNo}
+  confirmLabel="Yes"
+  onConfirm={handleYes}
+/>
+```
+
+---
+
+What if you need a third action?
+
+> Uhh, more props?
+
+<!-- mention how confusing it is that the "Cancel" action isn't used in the `onCancel` prop -->
+
+```tsx
+<ConfirmModal
+  title="Save before closing?"
+  customActionLabel="Cancel"
+  onCustomAction={handleCancel}
+  cancelLabel="No"
+  onCancel={handleNo}
+  confirmLabel="Yes"
+  onConfirm={handleYes}
+/>
+```
+
+---
+
+> Or how about a nice little **refactor**
+
+```tsx
+<ConfirmModal
+  title="Save before closing?"
+  actions={[
+    { label: 'Cancel', onClick: handleCancel },
+    { label: 'No', onClick: handleNo },
+    { label: 'Yes', onClick: handleYes },
+  ]}
+/>
+```
+
+---
+
+The list goes on...
+
+- What if you need to have an optional custom close button?
+- What if you need to support optional _title_ and _body_ content?
+- What if any one of the potential sub-components that could make up the modal needs an `appearance` prop?
+- What if the modal actions need a custom layout?
+
+---
+
+Use the compound component pattern to decompose _parts_ that make up _any given_ modal.
+
+<!-- each one of these buttons could have the appropriate `appearance` prop -->
+
+```tsx
+<Modal>
+  <ModalTitle>Save before closing?</ModalTitle>
+  <ModalActions>
+    <Button onClick={handleCancel}>Cancel</Button>
+    <Button onClick={handleNo}>No</Button>
+    <Button onClick={handleYes}>Yes</Button>
+  </ModalActions>
+</Modal>
+```
+
+---
+
+### Quick note
+
+Higher level abstractions aren't always bad, they just need a backing set of decomposed primative components. These _atomic_ components can be used to create common variants that might be needed in the future.
+
+<Small size="66%">
+
+```tsx
+export const ConfirmSave = ({ onCancel, onNo, onYes }) => (
+  <Modal>
+    <ModalTitle>Save before closing?</ModalTitle>
+    <ModalActions>
+      <Button onClick={onCancel}>Cancel</Button>
+      <Button onClick={onNo}>No</Button>
+      <Button onClick={onYes}>Yes</Button>
+    </ModalActions>
+  </Modal>
+);
+```
+
+</Small>
+
+---
+
+# Recap
+
+- Optimize for change by adapting your component APIs to handle variations
+- Attempt to standardize predictible and documented prop names
+- Decompose your components into atomic _compound components_
+- Utilize _polymorphic components_ to compose stylistic, semantic, and functional components
+
+---
+
+import mturco from './mturco.jpg';
+import matthaws from './matthaws.jpg';
+import lindsay from './lindsay.png';
+import sid from './sid.jpg';
+
+# Thanks
+
+### Namely is hiring!
+
+[https://namely.com/careers/](https://namely.com/careers/)
+
+<Small>
+
+<!-- prettier-ignore -->
+> Special thanks to Matt Turco, Matt Haws, Lindsay Walker, and Sid Gopinath
+>
+> <img src={mturco} style={{ borderRadius: '50%', height: '3em', marginRight: '0.5em', verticalAlign: 'middle' }} />
+> <img src={matthaws} style={{ borderRadius: '50%', height: '3em', marginRight: '0.5em', verticalAlign: 'middle' }} />
+> <img src={lindsay} style={{ borderRadius: '50%', height: '3em', marginRight: '0.5em', verticalAlign: 'middle' }} />
+> <img src={sid} style={{ borderRadius: '50%', height: '3em', marginRight: '0.5em', verticalAlign: 'middle' }} />
+
+</Small>
